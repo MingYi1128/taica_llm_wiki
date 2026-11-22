@@ -1,0 +1,53 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>HW 261110 演算法入門 LLM Wiki</title>
+<style>
+@page{size:A4;margin:18mm 16mm}
+body{font:11pt/1.65 "PingFang TC","Noto Sans TC","Heiti TC",sans-serif;color:#1d2330}
+h1{font-size:19pt;margin:0 0 4pt}h2{font-size:13.5pt;color:#2f5fd0;border-bottom:1px solid #ccd;padding-bottom:2pt;margin-top:16pt}
+.id{color:#555;margin-bottom:10pt}table{border-collapse:collapse;width:100%;font-size:10pt;margin:6pt 0}
+th,td{border:1px solid #bbb;padding:3pt 6pt;text-align:left;vertical-align:top}th{background:#eef3ff}
+code{font-family:Menlo,monospace;font-size:9.5pt;background:#f1f1ee;padding:0 2pt}
+.flow{display:flex;flex-direction:column;align-items:center;gap:4pt;margin:8pt 0}
+.b{border:1.2px solid #2f5fd0;border-radius:6px;padding:4pt 10pt;background:#f4f7ff;width:78%;text-align:center}
+.c{border:1.2px dashed #b3541e;border-radius:6px;padding:4pt 10pt;background:#fff6ee;width:78%;text-align:center}
+.a{color:#777;line-height:1}.fix{color:#b3541e;font-size:9.5pt}
+.warn{background:#fff3d6;padding:4pt 8pt;border-radius:4px}
+</style></head><body>
+<h1>HW 261110｜用 LLM Wiki 做教學 HTML 簡報：演算法入門</h1>
+<div class="id">國立雲林科技大學　M11517014　王銘億</div>
+
+<h2>1. LLM Wiki 主題與簡短介紹</h2>
+<p>主題：<b>演算法入門（Big O、二元搜尋、插入／選擇／快速排序）</b>。共 ingest <b>6 份來源</b>：自己整理的課程講義（S1，沿用 261103 的期中複習講義）＋ Wikipedia 5 篇（S2 Big O notation、S3 Binary search、S4 Insertion sort、S5 Selection sort、S6 Quicksort）。原文原樣存入 <code>wiki/raw/</code>，整理成 5 個頁面 <code>wiki/pages/</code>。每條事實都附來源編號與「逐字引用」，由程式驗證引用真的出現在原文中（共 31 條）。建立前先做「先討論、後生成」，決定了主題、來源、頁面結構與事實規則（見 <code>wiki/discussion.md</code>）。</p>
+
+<h2>2. LLM Wiki 連結</h2>
+<p>GitHub：<code>https://github.com/MingYi1128/taica_llm_wiki</code><br>入口：<code>wiki/index.md</code>（頁面清單）、<code>wiki/log.md</code>（ingest 紀錄）、<code>wiki/discussion.md</code>（討論紀錄）</p>
+
+<h2>3. 教學 HTML 簡報連結</h2>
+<p><code>https://mingyi1128.github.io/taica_llm_wiki/deck/</code>（檔案：<code>deck/index.html</code>）<br>14 張，方向鍵翻頁；含二元搜尋互動示範、插入／選擇排序逐步示範、四種演算法對照表、小測驗。每張投影片頁尾標示對應的 Wiki 頁面。</p>
+
+<h2>4. loop / graph 流程</h2>
+<div class="flow">
+<div class="b">取得資料 → ingest 到 <code>raw/</code>（原文不可改）</div><div class="a">▼</div>
+<div class="b">生成 Wiki 頁面（每條事實附 [Sx] 與逐字引用）</div><div class="a">▼</div>
+<div class="c">Check 1：引用是否真的在 raw 中　<span class="fix">✗ → 修 Wiki</span></div><div class="a">▼ ✓</div>
+<div class="b">規劃投影片，每張標 data-wiki 對應頁面</div><div class="a">▼</div>
+<div class="c">Pre-flight（寫檔前）：O(…) 式子是否在所引用的 Wiki 頁　<span class="fix">✗ → 先補 Wiki</span></div><div class="a">▼ ✓</div>
+<div class="b">生成 HTML；範例（trace、表格）由程式算出，不手打</div><div class="a">▼</div>
+<div class="c">Check 2：每張有 Wiki 對應＋重算數字　<span class="fix">✗ → 回到上游修 Wiki</span></div><div class="a">▼ ✓</div>
+<div class="b">人工瀏覽（瀏覽器實測）→ 完成</div></div>
+<p><b>重複執行的步驟：</b>「生成 → 檢查 → 失敗則回上游」。<b>修的是 Wiki，不是直接改簡報</b>，才能維持來源與簡報一致。<b>為什麼這樣設計：</b>LLM 容易寫出看似正確、但來源沒有的內容，所以把檢查寫成可執行的程式，由機器比對，不靠 AI 自己再看一次。</p>
+
+<h2>5. 一次實際執行的結果與檢查紀錄</h2>
+<table><tr><th>次</th><th>檢查</th><th>結果</th></tr>
+<tr><td>1</td><td>Check 1（Wiki）</td><td>OK：31 條事實，引用全部在 raw 找到</td></tr>
+<tr><td>1</td><td>Check 2（簡報）</td><td><b>失敗：</b><code>slide 4: 'O(n)' not supported by cited wiki pages ['big-o']</code></td></tr>
+<tr><td>2</td><td>補 Wiki「教學範例（推論）」後重跑</td><td>OK：14 張皆有 Wiki 對應，數字重算一致</td></tr>
+<tr><td>2</td><td>Pre-flight 反向測試（刻意移除該行）</td><td>build 被擋下：<code>PRE-FLIGHT FAIL slide 4: O(n) not in wiki pages ['big-o']</code></td></tr></table>
+<p>另以瀏覽器實測：二元搜尋互動示範（在 [1,3,5,7,9,11,13] 找 11）第 2 次比較即找到位置 6，與程式計算一致；無 console 錯誤、無橫向捲動。完整紀錄在 repo 的 <code>logs/</code>。</p>
+
+<h2>6. 反思</h2>
+<p><b>哪個節點最常出錯：生成簡報。</b>Check 1 一次就過，因為引用是從原文複製的；錯誤出在簡報階段，AI 為了教學順手加了「3n 與 100n 都是 O(n)」這種來源沒有的例子。</p>
+<p><b>如何調整檢查流程：</b>原本只在簡報完成後（Check 2）才發現。我加入 <b>Pre-flight</b>，在寫出 HTML 之前就擋下：投影片中的複雜度式子若不在所引用的 Wiki 頁，就中止並要求先補 Wiki。檢查因此從「生成之後」前移到「生成之前」。</p>
+<p><b>為什麼修改 workflow：</b>教學簡報一定會需要來源以外的例子。與其禁止，不如規定「例子要先進 Wiki 並標為推論」，讓來源與簡報仍可一一對應。</p>
+<p class="warn">限制：檢查只涵蓋 O(…) 式子與數字；一般敘述句（例如「像整理撲克牌」）仍須人工檢查。</p>
+<p style="font-size:9.5pt;color:#555">重用說明：資料沿用 Homework_261103 的講義（S1）與檢查腳本的做法；其餘為本次新做。</p>
+</body></html>
