@@ -1,0 +1,1 @@
+PRE-FLIGHT FAIL slide 4: O(n) not in wiki pages ['big-o'] -> add it to the wiki first

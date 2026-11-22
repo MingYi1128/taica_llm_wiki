@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>演算法入門簡報</title>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d2330;--mut:#5c6475;--card:#fff;--line:#d9d6cc;--acc:#2f5fd0;--hi:#e8f0ff;--warn:#fff3d6;--warnfg:#7a5200}
+@media (prefers-color-scheme:dark){:root{--bg:#12151c;--fg:#e8eaf0;--mut:#9aa3b5;--card:#1a1f2a;--line:#2d3444;--acc:#7da2ff;--hi:#1d2a4a;--warn:#3a2f12;--warnfg:#f2d48a}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:18px/1.6 "Noto Sans TC",system-ui,sans-serif;overflow:hidden}
+.slide{display:none;height:100vh;padding:5vh 8vw 9vh;overflow:auto;max-width:1100px;margin:auto}
+.slide.on{display:block}
+h1{font-size:clamp(34px,6vw,60px);margin:12vh 0 8px}h2{font-size:clamp(24px,3.6vw,38px);margin:0 0 .6em;color:var(--acc)}h3{margin:.2em 0}
+.sub{font-size:1.3em;color:var(--mut)}.meta,.note{color:var(--mut);font-size:.85em}
+.warn{background:var(--warn);color:var(--warnfg);padding:.6em .9em;border-radius:8px;font-size:.9em}
+.quote{font-size:1.25em;border-left:4px solid var(--acc);padding-left:.8em}
+table{border-collapse:collapse;width:100%;margin:.6em 0}th,td{border:1px solid var(--line);padding:.4em .7em;text-align:left}th{background:var(--hi)}
+pre{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.8em;font:15px/1.5 "JetBrains Mono",monospace;overflow:auto}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media(max-width:640px){.two{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1em}.card.hi{background:var(--hi);border-color:var(--acc)}.big{font-size:1.5em;font-weight:700;margin:.3em 0}
+.tr{display:flex;align-items:center;gap:6px;margin:4px 0;flex-wrap:wrap}.tr em{color:var(--mut);font-size:.8em;margin-left:8px}
+.cell{display:inline-block;min-width:2.1em;text-align:center;border:1px solid var(--line);background:var(--card);border-radius:6px;padding:.1em .3em;font-family:"JetBrains Mono",monospace}
+.cell.dim{opacity:.6}.cell.lo{background:var(--hi);border-color:var(--acc)}.cell.mid{background:var(--acc);color:var(--bg);font-weight:700}.cell.out{opacity:.25}
+.ctl{margin:.8em 0}button{font:inherit;padding:.4em 1em;border-radius:8px;border:1px solid var(--acc);background:var(--card);color:var(--fg);cursor:pointer}button:disabled{opacity:.4}
+details{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:.6em .9em;margin:.5em 0}summary{cursor:pointer;font-weight:600}
+footer{position:fixed;left:0;right:0;bottom:0;padding:.5em 1.2em;color:var(--mut);font-size:.75em;display:flex;justify-content:space-between;background:var(--bg)}
+#nav{position:fixed;right:1em;bottom:2.4em;display:flex;gap:6px;z-index:2}
+</style>
+</head>
+<body>
+<section class="slide" data-wiki=""><h1>演算法入門</h1><p class="sub">Big O、二元搜尋與基本排序<br>給第一次接觸演算法的你</p>
+  <p class="meta">資料來源：LLM Wiki（6 份來源，5 個頁面）</p><footer></footer></section>
+<section class="slide" data-wiki="big-o"><h2>學完這份簡報，你能…</h2><ul>
+  <li>用一句話說明 <b>Big O</b> 在描述什麼</li><li>說出<b>二元搜尋</b>為什麼快、什麼時候不能用</li>
+  <li>手動跑一次<b>插入排序</b>與<b>選擇排序</b></li><li>比較四種演算法的時間複雜度</li></ul>
+  <p class="note">先備知識：會讀陣列（a₁, a₂, …, aₙ）即可。</p><footer>Wiki：big-o</footer></section>
+<section class="slide" data-wiki="binary-search"><h2>為什麼要在乎演算法的快慢？</h2>
+  <p>在 <b>1,000,000</b> 筆已排序資料中找一個數：</p>
+  <div class="two"><div class="card"><h3>從頭一個個找</h3><p class="big">最多 1,000,000 次</p></div>
+  <div class="card hi"><h3>二元搜尋</h3><p class="big">最多 20 次</p></div></div>
+  <p class="note">20 = ⌊lg 1,000,000⌋ + 1，由程式計算，非手填。</p><footer>Wiki：binary-search</footer></section>
+<section class="slide" data-wiki="big-o"><h2>Big O 是什麼？</h2>
+  <p class="quote">描述「輸入變大時，執行時間（或空間）成長得多快」</p>
+  <ul><li>只看<b>成長趨勢</b>，忽略常數：3n 與 100n 都是 O(n)</li>
+  <li>只是<b>上界</b>：f(n) ≤ c·g(n)，當 n ≥ n₀</li>
+  <li>O 來自德文 <i>Ordnung</i>（階、order）</li></ul><footer>Wiki：big-o</footer></section>
+<section class="slide" data-wiki="big-o"><h2>三個容易搞混的符號</h2>
+  <table><tr><th>符號</th><th>意思</th></tr><tr><td>O（Big O）</td><td>上界</td></tr>
+  <tr><td>Ω（Big Omega）</td><td>下界</td></tr><tr><td>Θ（Big Theta）</td><td>上下界夾住（tight bound）</td></tr></table>
+  <p class="warn">⚠️ 我們課堂的 little o 定義是「極限 = 1」，和一般教科書（極限 = 0）不同，考試依老師版本。</p>
+  <p class="note">常見誤解：Big O ≠ 最壞情況。「最壞情況」是挑輸入，「Big O」是函數的界。</p><footer>Wiki：big-o</footer></section>
+<section class="slide" data-wiki="binary-search"><h2>二元搜尋：想法</h2>
+  <ol><li>先確認陣列<b>已排序</b></li><li>拿目標 X 和<b>中間</b>元素 aⱼ 比</li>
+  <li>X = aⱼ → 找到；X &lt; aⱼ → 只看左半；X &gt; aⱼ → 只看右半</li><li>重複，直到找到或範圍變空</li></ol>
+  <pre>i := 1; m := n
+while i &lt;= m do
+   j := ⌊(i+m)/2⌋
+   if X = a_j then output j and stop
+   if X &lt; a_j then m := j-1 else i := j+1
+output 0</pre><footer>Wiki：binary-search</footer></section>
+<section class="slide" data-wiki="binary-search"><h2>互動示範：在 [1, 3, 5, 7, 9, 11, 13] 找 11</h2>
+  <div id="bs"></div><div class="ctl"><button id="prev">← 上一步</button><button id="next">下一步 →</button></div>
+  <p id="bsmsg" class="note"></p><footer>Wiki：binary-search</footer></section>
+<section class="slide" data-wiki="binary-search"><h2>最多要比較幾次？</h2>
+  <table><tr><th>n</th><th>⌊lg n⌋ + 1</th></tr><tr><td>7</td><td>3</td></tr><tr><td>15</td><td>4</td></tr><tr><td>1,000</td><td>10</td></tr><tr><td>1,000,000</td><td>20</td></tr></table>
+  <p class="note">資料量變 1000 倍，次數只多約 10 次，這就是 O(log n)。<br>⚠️ 次數是 ⌊lg n⌋+1，不是 lg n。</p>
+  <p class="warn">對沒排序的陣列用二元搜尋，結果會是錯的，不只是變慢。</p><footer>Wiki：binary-search</footer></section>
+<section class="slide" data-wiki="insertion-sort"><h2>插入排序：像整理撲克牌</h2>
+  <p>把第 j 張抽出，插入前面已排好的牌中。示範：5, 2, 4, 6, 1, 3</p><div class="trace"><div class="tr"><span class="cell dim">5</span><span class="cell dim">2</span><span class="cell dim">4</span><span class="cell dim">6</span><span class="cell dim">1</span><span class="cell dim">3</span><em>原始</em></div><div class="tr"><span class="cell ">2</span><span class="cell ">5</span><span class="cell ">4</span><span class="cell ">6</span><span class="cell ">1</span><span class="cell ">3</span><em>第 1 回合後</em></div><div class="tr"><span class="cell ">2</span><span class="cell ">4</span><span class="cell ">5</span><span class="cell ">6</span><span class="cell ">1</span><span class="cell ">3</span><em>第 2 回合後</em></div><div class="tr"><span class="cell ">2</span><span class="cell ">4</span><span class="cell ">5</span><span class="cell ">6</span><span class="cell ">1</span><span class="cell ">3</span><em>第 3 回合後</em></div><div class="tr"><span class="cell ">1</span><span class="cell ">2</span><span class="cell ">4</span><span class="cell ">5</span><span class="cell ">6</span><span class="cell ">3</span><em>第 4 回合後</em></div><div class="tr"><span class="cell ">1</span><span class="cell ">2</span><span class="cell ">3</span><span class="cell ">4</span><span class="cell ">5</span><span class="cell ">6</span><em>第 5 回合後</em></div></div>
+  <ul><li>已排序 → 很快 O(n)；反向排序 → 最慢 O(n²)</li><li>穩定（相同值不換順序）</li></ul><footer>Wiki：insertion-sort</footer></section>
+<section class="slide" data-wiki="selection-sort"><h2>選擇排序：每回合挑最小的</h2>
+  <p>示範：7, 5, 1, 4, 3（與課堂範例一致）</p><div class="trace"><div class="tr"><span class="cell dim">7</span><span class="cell dim">5</span><span class="cell dim">1</span><span class="cell dim">4</span><span class="cell dim">3</span><em>原始</em></div><div class="tr"><span class="cell ">1</span><span class="cell ">5</span><span class="cell ">7</span><span class="cell ">4</span><span class="cell ">3</span><em>第 1 回合後</em></div><div class="tr"><span class="cell ">1</span><span class="cell ">3</span><span class="cell ">7</span><span class="cell ">4</span><span class="cell ">5</span><em>第 2 回合後</em></div><div class="tr"><span class="cell ">1</span><span class="cell ">3</span><span class="cell ">4</span><span class="cell ">7</span><span class="cell ">5</span><em>第 3 回合後</em></div><div class="tr"><span class="cell ">1</span><span class="cell ">3</span><span class="cell ">4</span><span class="cell ">5</span><span class="cell ">7</span><em>第 4 回合後</em></div></div>
+  <p>比較次數固定為 n(n−1)/2：例如 n=5 時 = 10 次，<b>與資料內容無關</b>。</p><footer>Wiki：selection-sort</footer></section>
+<section class="slide" data-wiki="quicksort"><h2>快速排序：分而治之（概念）</h2>
+  <ol><li>選一個 <b>pivot</b></li><li>分成「比 pivot 小」與「比 pivot 大」兩堆</li><li>兩堆各自遞迴排序</li></ol>
+  <ul><li>平均 O(n log n)，最壞 O(n²)</li><li>pivot 的選法影響效能，不影響正確性</li></ul>
+  <p class="note">本次期中不考，這裡只建立概念。</p><footer>Wiki：quicksort</footer></section>
+<section class="slide" data-wiki="big-o binary-search insertion-sort selection-sort quicksort"><h2>四種演算法對照</h2>
+  <table><tr><th>演算法</th><th>最好</th><th>最壞</th><th>備註</th></tr>
+  <tr><td>二元搜尋</td><td>O(1)</td><td>O(log n)</td><td>需已排序</td></tr>
+  <tr><td>插入排序</td><td>O(n)</td><td>O(n²)</td><td>穩定、近排序時快</td></tr>
+  <tr><td>選擇排序</td><td>O(n²)</td><td>O(n²)</td><td>與資料無關</td></tr>
+  <tr><td>快速排序</td><td>平均 O(n log n)</td><td>O(n²)</td><td>pivot 很關鍵</td></tr></table>
+  <p class="note">插入、選擇排序的次數依課堂定義：分別是資料搬移數與比較數。</p><footer>Wiki：big-o、binary-search、insertion-sort、selection-sort、quicksort</footer></section>
+<section class="slide" data-wiki="binary-search selection-sort big-o"><h2>小測驗（點題目看答案）</h2>
+  <details><summary>Q1：在 255 筆已排序資料用二元搜尋，最多比較幾次？</summary><p>⌊lg 255⌋ + 1 = 8 次。</p></details>
+  <details><summary>Q2：選擇排序排 10 個數，比較幾次？</summary><p>10×9/2 = 45 次，不管資料長怎樣。</p></details>
+  <details><summary>Q3：對 [5, 2, 9] 做二元搜尋可以嗎？</summary><p>不行，必須先排序。</p></details><footer>Wiki：binary-search、selection-sort、big-o</footer></section>
+<section class="slide" data-wiki="big-o binary-search insertion-sort selection-sort quicksort"><h2>回顧與來源</h2>
+  <ul><li>Big O = 成長趨勢的上界</li><li>二元搜尋：已排序 + 每次砍半 → O(log n)</li>
+  <li>排序：插入（近排序快）、選擇（次數固定）、快速（平均快）</li></ul>
+  <p class="note">來源：自編課程講義；Wikipedia（Big O notation、Binary search、Insertion sort、Selection sort、Quicksort，CC BY-SA）。每個論點在 wiki/pages 都有原文引用。</p><footer>Wiki：big-o、binary-search、insertion-sort、selection-sort、quicksort</footer></section>
+<div id="nav"><button id="p" aria-label="上一張">‹</button><span id="cnt" style="align-self:center"></span><button id="n" aria-label="下一張">›</button></div>
+<script>
+const DATA={"bs_arr": [1, 3, 5, 7, 9, 11, 13], "bs_x": 11, "bs_steps": [{"i": 1, "m": 7, "j": 4, "aj": 7}, {"i": 5, "m": 7, "j": 6, "aj": 11}], "bs_res": 6};
+const S=[...document.querySelectorAll('.slide')];let cur=0;
+function show(k){cur=Math.max(0,Math.min(S.length-1,k));S.forEach((s,i)=>s.classList.toggle('on',i===cur));
+ document.getElementById('cnt').textContent=(cur+1)+' / '+S.length;try{history.replaceState(null,'','#'+(cur+1))}catch(e){}}
+document.getElementById('p').onclick=()=>show(cur-1);document.getElementById('n').onclick=()=>show(cur+1);
+addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown')show(cur+1);if(e.key==='ArrowLeft'||e.key==='PageUp')show(cur-1)});
+show((parseInt(location.hash.slice(1))||1)-1);
+// binary search stepper (steps precomputed by Python)
+(function(){const el=document.getElementById('bs');if(!el)return;let k=0;const T=DATA.bs_steps,a=DATA.bs_arr;
+ function render(){const st=k>0?T[k-1]:null;
+  el.innerHTML='<div class="tr">'+a.map((v,i)=>{const p=i+1;let c='cell';if(st){if(p===st.j)c+=' mid';else if(p>=st.i&&p<=st.m)c+=' lo';else c+=' out'}return '<span class="'+c+'">'+v+'</span>'}).join('')+'</div>';
+  document.getElementById('bsmsg').textContent=k===0?'目標 X = '+DATA.bs_x+'。按「下一步」開始。':
+   '第 '+k+' 次比較：i='+st.i+', m='+st.m+', j=⌊(i+m)/2⌋='+st.j+'，a_j='+st.aj+(st.aj===DATA.bs_x?' = X，找到了（位置 '+DATA.bs_res+'）':(DATA.bs_x<st.aj?' > X，往左半找':' < X，往右半找'));
+  document.getElementById('prev').disabled=k===0;document.getElementById('next').disabled=k===T.length}
+ document.getElementById('prev').onclick=()=>{k--;render()};document.getElementById('next').onclick=()=>{k++;render()};render()})();
+</script>
+</body>
+</html>
